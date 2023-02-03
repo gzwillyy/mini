@@ -192,6 +192,7 @@ tags
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/goland,visualstudiocode,go,linux,vim
-
+# ide
+.DS_Store
 # Custom
 /_output
