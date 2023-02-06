@@ -8,6 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/gzwillyy/mini/internal/pkg/global"
 )
 
 const (
@@ -59,4 +61,8 @@ func initConfig() {
 
 	// 打印 viper 当前使用的配置文件，方便 Debug.
 	fmt.Fprintln(os.Stdout, "Using config file:", viper.ConfigFileUsed())
+
+	// 将配置信息放在全局变量中
+	viper.Unmarshal(global.ServerConfig)
+	fmt.Fprintln(os.Stdout, "global info:", global.ServerConfig)
 }

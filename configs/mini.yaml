@@ -1,10 +1,15 @@
-# MySQL 数据库相关配置
-db:
-  host: 127.0.0.1  # MySQL 机器 IP 和端口，默认 127.0.0.1:3306
-  username: miniblog # MySQL 用户名(建议授权最小权限集)
-  password: miniblog1234 # MySQL 用户密码
-  database: miniblog # miniblog 系统所用的数据库名
-  max-idle-connections: 100 # MySQL 最大空闲连接数，默认 100
-  max-open-connections: 100 # MySQL 最大打开的连接数，默认 100
-  max-connection-life-time: 10s # 空闲连接最大存活时间，默认 10s
-  log-level: 4 # GORM log level, 1: silent, 2:error, 3:warn, 4:info
+# 通用配置
+name : 'web-api'         # 服务名称
+port : 10051             # 服务端口
+host : 192.168.10.33     # 服务IP地址
+debug : 'true'                 # 服务debug模式
+
+# JWT配置
+jwt:
+  key: 'zIcG6foVHFSHNtOf' # JWT签发密钥
+
+# Redis配置
+redis:
+  host: '127.0.0.1'       # redis IP地址
+  port: 3306              # redis 端口
+  expire: 120             # 个别key 过期时间

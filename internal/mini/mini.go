@@ -10,8 +10,8 @@ import (
 
 var cfgFile string
 
-// NewMiniBlogCommand 创建一个 *cobra.Command 对象. 之后，可以使用 Command 对象的 Execute 方法来启动应用程序.
-func NewMiniBlogCommand() *cobra.Command {
+// NewMiniCommand 创建一个 *cobra.Command 对象. 之后，可以使用 Command 对象的 Execute 方法来启动应用程序.
+func NewMiniCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		// 指定命令的名字，该名字会出现在帮助信息中
 		Use: "mini",

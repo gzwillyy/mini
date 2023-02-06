@@ -12,7 +12,7 @@ import (
 func main() {
 
 	//使用 cobra 框架创建应用的cli交互 aa
-	command := mini.NewMiniBlogCommand()
+	command := mini.NewMiniCommand()
 	if err := command.Execute(); err != nil {
 		os.Exit(1)
 	}

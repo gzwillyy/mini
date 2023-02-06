@@ -17,7 +17,7 @@ all: add-copyright format build
 
 .PHONY: build
 build: tidy # 编译源码，依赖 tidy 目标自动添加/移除依赖包.
-	@go build -v -o $(OUTPUT_DIR)/mini $(ROOT_DIR)/cmd/mini/mini.go
+	@go build -v -o $(OUTPUT_DIR)/mini $(ROOT_DIR)/cmd/mini/main.go
 
 .PHONY: format
 format: # 格式化 Go 源码.
