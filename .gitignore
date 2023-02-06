@@ -173,7 +173,6 @@ tags
 [._]*.un~
 
 ### VisualStudioCode ###
-.vscode
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -195,5 +194,7 @@ tags
 # End of https://www.toptal.com/developers/gitignore/api/goland,visualstudiocode,go,linux,vim
 # ide
 .DS_Store
+.idea
+.vscode
 # Custom
 /_output
