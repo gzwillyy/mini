@@ -43,9 +43,9 @@ type LogConfig struct {
 // ServerConfig 应用配置信息
 type ServerConfig struct {
 	Name      string      `mapstructure:"name" json:"name"`
-	Port      int         `mapstructure:"port" json:"port"`
 	Host      string      `mapstructure:"host" json:"host"`
-	Debug     string      `mapstructure:"debug" json:"debug"`
+	Port      int         `mapstructure:"port" json:"port"`
+	Ginmode   string      `mapstructure:"ginmode" json:"ginmode"`
 	JWTInfo   JWTConfig   `mapstructure:"jwt" json:"jwt"`
 	RedisInfo RedisConfig `mapstructure:"redis" json:"redis"`
 	LogConfig LogConfig   `mapstructure:"log" json:"log"`

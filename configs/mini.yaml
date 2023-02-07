@@ -18,25 +18,25 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # 通用配置
-name : web-api         # 服务名称
-port : 10051             # 服务端口
-host : 192.168.10.33     # 服务IP地址
-debug : true                 # 服务debug模式
+name : web-api                              # 服务名称
+host : 192.168.10.33                        # 服务IP地址
+port : 10052                                # 服务端口
+runmode: debug                              # Gin 开发模式, 可选值有：debug, release, test
 
 # 日志配置
 log:
-  disable-caller: false # 是否开启 caller，如果开启会在日志中显示调用日志所在的文件和行号
-  disable-stacktrace: false # 是否禁止在 panic 及以上级别打印堆栈信息
-  level: debug # 指定日志级别，可选值：debug, info, warn, error, dpanic, panic, fatal
-  format: console # 指定日志显示格式，可选值：console, json
+  disable-caller: false                     # 是否开启 caller，如果开启会在日志中显示调用日志所在的文件和行号
+  disable-stacktrace: false                 # 是否禁止在 panic 及以上级别打印堆栈信息
+  level: debug                              # 指定日志级别，可选值：debug, info, warn, error, dpanic, panic, fatal
+  format: console                           # 指定日志显示格式，可选值：console, json
   output-paths: [/tmp/miniblog.log, stdout] # 指定日志输出位置
 
 # JWT配置
 jwt:
-  key: zIcG6foVHFSHNtOf # JWT签发密钥
+  key: zIcG6foVHFSHNtOf                     # JWT签发密钥
 
 # Redis配置
 redis:
-  host: 127.0.0.1       # redis IP地址
-  port: 3306              # redis 端口
-  expire: 120             # 个别key 过期时间
+  host: 127.0.0.1                           # redis IP地址
+  port: 3306                                # redis 端口
+  expire: 120                               # 个别key 过期时间
