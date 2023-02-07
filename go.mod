@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/gin-gonic/gin v1.8.2
 	github.com/go-playground/universal-translator v0.18.1
+	github.com/google/uuid v1.1.2
 	github.com/gosuri/uitable v0.0.4
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5

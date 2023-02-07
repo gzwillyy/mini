@@ -20,16 +20,22 @@
 package mini
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
 	"github.com/gzwillyy/mini/internal/pkg/log"
+	mw "github.com/gzwillyy/mini/internal/pkg/middleware"
 	"github.com/gzwillyy/mini/pkg/version/verflag"
 )
 
@@ -91,11 +97,20 @@ Find more mini information at:
 
 // run 函数是实际的业务代码入口函数.
 func run() error {
+	// 打印所有的配置项及其值
+	settings, _ := json.Marshal(viper.AllSettings())
+	log.Infow(string(settings))
+
 	// 设置 Gin 模式
 	gin.SetMode(viper.GetString("ginmode"))
 
 	// 创建 Gin 引擎
 	g := gin.New()
+
+	// gin.Recovery() 中间件，用来捕获任何 panic，并恢复
+	mws := []gin.HandlerFunc{gin.Recovery(), mw.NoCache, mw.Cors, mw.Secure, mw.RequestID()}
+
+	g.Use(mws...)
 
 	// 注册 404 Handler.
 	g.NoRoute(func(c *gin.Context) {
@@ -104,6 +119,8 @@ func run() error {
 
 	// 注册 /healthz handler.
 	g.GET("/healthz", func(c *gin.Context) {
+		log.C(c).Infow("Healthz function called")
+
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
@@ -113,12 +130,32 @@ func run() error {
 	// 运行 HTTP 服务器
 	// 打印一条日志，用来提示 HTTP 服务已经起来，方便排障
 	log.Infow("Start to listening the incoming requests on http address", "addr", viper.GetString("port"))
-	if err := httpSrv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		log.Fatalw(err.Error())
+	go func() {
+		if err := httpSrv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalw(err.Error())
+		}
+	}()
+
+	// 等待中断信号优雅地关闭服务器（10 秒超时)。
+	quit := make(chan os.Signal, 1)
+	// kill 默认会发送 syscall.SIGTERM 信号
+	// kill -2 发送 syscall.SIGINT 信号，我们常用的 CTRL + C 就是触发系统 SIGINT 信号
+	// kill -9 发送 syscall.SIGKILL 信号，但是不能被捕获，所以不需要添加它
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM) // 此处不会阻塞
+	<-quit                                               // 阻塞在此，当接收到上述两种信号时才会往下执行
+	log.Infow("Shutting down server ...")
+
+	// 创建 ctx 用于通知服务器 goroutine, 它有 10 秒时间完成当前正在处理的请求
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// 10 秒内优雅关闭服务（将未处理完的请求处理完再关闭服务），超过 10 秒就超时退出
+	if err := httpSrv.Shutdown(ctx); err != nil {
+		log.Errorw("Insecure Server forced to shutdown", "err", err)
+		return err
 	}
-	// 打印所有的配置项及其值
-	settings, _ := json.Marshal(viper.AllSettings())
-	log.Infow(string(settings))
+
+	log.Infow("Server exiting")
 	return nil
 
 }

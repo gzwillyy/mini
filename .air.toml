@@ -8,7 +8,7 @@ tmp_dir = "tmp"
 [build]
 # 只是普通的旧 shell 命令。 您也可以使用 `make`
 # cmd = "go build -o ./tmp/main ."
-cmd = "make build"
+cmd = "make"
 # 二进制文件从 `cmd` 产生。
 bin = "_output/mini"
 # 自定义二进制文件，可以在运行应用程序时设置环境变量。
