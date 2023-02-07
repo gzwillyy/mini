@@ -45,7 +45,7 @@ rerun = false
 rerun_delay = 500
 # 运行二进制 (bin/full_bin) 时添加额外的参数。 将运行 './tmp/main hello world'.
 # args_bin = ["hello", "world"]
-args_bin = ["-c", "configs/mini.yaml"]
+args_bin = ["-c", "configs/mini.yaml","--version"]
 
 [log]
 # 显示日志时间
