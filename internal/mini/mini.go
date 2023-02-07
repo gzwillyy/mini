@@ -6,6 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/gzwillyy/mini/internal/pkg/log"
 )
 
 var cfgFile string
@@ -28,6 +30,9 @@ Find more mini information at:
 
 		// 指定调用 cmd.Execute() 时，执行的 Run 函数，函数执行失败会返回错误信息
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// 初始化日志
+			log.Init(logOptions())
+			defer log.Sync() // Sync 将缓存中的日志刷新到磁盘文件中
 			return run()
 		},
 
@@ -46,8 +51,6 @@ Find more mini information at:
 	// 以下设置，使得 initConfig 函数在每个命令运行时都会被调用以读取配置
 	cobra.OnInitialize(initConfig)
 
-	// 在这里您将定义标志和配置设置。
-
 	// Cobra 支持持久性标志(PersistentFlag)，该标志可用于它所分配的命令以及该命令下的每个子命令
 	cmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default is $HOME/.mini.yaml)")
 
@@ -59,12 +62,11 @@ Find more mini information at:
 
 // run 函数是实际的业务代码入口函数.
 func run() error {
-	fmt.Println("Hello Mini!")
 	// 打印所有的配置项及其值
 	settings, _ := json.Marshal(viper.AllSettings())
-	fmt.Println(string(settings))
-	// 打印 db -> username 配置项的值
-	fmt.Println(viper.GetString("db.username"))
+	log.Infow(string(settings))
+	// 打印 host 配置项的值
+	log.Infow(viper.GetString("host"))
 	return nil
 
 }

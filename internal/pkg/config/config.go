@@ -13,6 +13,14 @@ type RedisConfig struct {
 	Expire int    `mapstructure:"expire" json:"expire"`
 }
 
+type LogConfig struct {
+	DisableCaller     bool     `mapstructure:"disable-caller" json:"disable-caller"`
+	DisableStacktrace bool     `mapstructure:"disable-stacktrace" json:"disable-stacktrace"`
+	Level             string   `mapstructure:"level" json:"level"`
+	Format            string   `mapstructure:"format" json:"format"`
+	OutputPaths       []string `mapstructure:"output-paths" json:"output-paths"`
+}
+
 // ServerConfig 应用配置信息
 type ServerConfig struct {
 	Name      string      `mapstructure:"name" json:"name"`
@@ -21,4 +29,5 @@ type ServerConfig struct {
 	Debug     string      `mapstructure:"debug" json:"debug"`
 	JWTInfo   JWTConfig   `mapstructure:"jwt" json:"jwt"`
 	RedisInfo RedisConfig `mapstructure:"redis" json:"redis"`
+	LogConfig LogConfig   `mapstructure:"log" json:"log"`
 }
