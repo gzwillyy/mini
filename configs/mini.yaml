@@ -26,7 +26,7 @@ log:
   disable-stacktrace: false                 # 是否禁止在 panic 及以上级别打印堆栈信息
   level: debug                              # 指定日志级别，可选值：debug, info, warn, error, dpanic, panic, fatal
   format: console                           # 指定日志显示格式，可选值：console, json
-  output-paths: [/tmp/miniblog.log, stdout] # 指定日志输出位置
+  output-paths: [/tmp/minig.log, stdout] # 指定日志输出位置
 
 db:
   host: 10.211.55.3                         # MySQL 机器 IP 和端口，默认 127.0.0.1:3306

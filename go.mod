@@ -6,6 +6,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
 	github.com/gin-gonic/gin v1.8.2
 	github.com/go-playground/universal-translator v0.18.1
+	github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/google/uuid v1.1.2
 	github.com/gosuri/uitable v0.0.4
 	github.com/jinzhu/copier v0.3.5

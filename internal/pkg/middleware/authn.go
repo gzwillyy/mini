@@ -16,26 +16,27 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 
+	"github.com/gzwillyy/mini/internal/pkg/core"
+	"github.com/gzwillyy/mini/internal/pkg/errno"
 	"github.com/gzwillyy/mini/internal/pkg/known"
+	"github.com/gzwillyy/mini/pkg/token"
 )
 
-// RequestID 是一个 Gin 中间件，用来在每一个 HTTP 请求的 context, response 中注入 `X-Request-ID` 键值对.
-func RequestID() gin.HandlerFunc {
+// Authn 是认证中间件，用来从 gin.Context 中提取 token 并验证 token 是否合法，
+// 如果合法则将 token 中的 sub 作为<用户名>存放在 gin.Context 的 XUsernameKey 键中.
+func Authn() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 检查请求头中是否有 `X-Request-ID`，如果有则复用，没有则新建
-		requestID := c.Request.Header.Get(known.XRequestIDKey)
+		// 解析 JWT Token
+		username, err := token.ParseRequest(c)
+		if err != nil {
+			core.WriteResponse(c, errno.ErrTokenInvalid, nil)
+			c.Abort()
 
-		if requestID == "" {
-			requestID = uuid.New().String()
+			return
 		}
 
-		// 将 RequestID 保存在 gin.Context 中，方便后边程序使用
-		c.Set(known.XRequestIDKey, requestID)
-
-		// 将 RequestID 保存在 HTTP 返回头中，Header 的键为 `X-Request-ID`
-		c.Writer.Header().Set(known.XRequestIDKey, requestID)
+		c.Set(known.XUsernameKey, username)
 		c.Next()
 	}
 }

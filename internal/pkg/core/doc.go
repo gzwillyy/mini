@@ -13,4 +13,4 @@
 // limitations under the License.
 
 // Package core 实现了apimachinery使用的一些核心功能.
-package core // import "github.com/marmotedu/miniblog/internal/pkg/core"
+package core // import "github.com/gzwillyy/mini/internal/pkg/core"

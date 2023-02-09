@@ -16,6 +16,7 @@ package mini
 
 import (
 	"github.com/gin-gonic/gin"
+	mw "github.com/gzwillyy/mini/internal/pkg/middleware"
 
 	"github.com/gzwillyy/mini/internal/mini/controller/v1/user"
 	"github.com/gzwillyy/mini/internal/mini/store"
@@ -24,7 +25,7 @@ import (
 	"github.com/gzwillyy/mini/internal/pkg/log"
 )
 
-// installRouters 安装 miniblog 接口路由.
+// installRouters 安装 mini 接口路由.
 func installRouters(g *gin.Engine) error {
 	// 注册 404 Handler.
 	g.NoRoute(func(c *gin.Context) {
@@ -40,6 +41,8 @@ func installRouters(g *gin.Engine) error {
 
 	uc := user.New(store.S)
 
+	g.POST("/login", uc.Login)
+
 	// 创建 v1 路由分组
 	v1 := g.Group("/v1")
 	{
@@ -47,6 +50,8 @@ func installRouters(g *gin.Engine) error {
 		userv1 := v1.Group("/users")
 		{
 			userv1.POST("", uc.Create)
+			userv1.PUT(":name/change-password", uc.ChangePassword)
+			userv1.Use(mw.Authn())
 		}
 	}
 

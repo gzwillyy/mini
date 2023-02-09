@@ -187,10 +187,15 @@ func C(ctx context.Context) *zapLogger {
 func (l *zapLogger) C(ctx context.Context) *zapLogger {
 	lc := l.clone()
 
+	// 将requestID添加到日志的输出字段中
 	if requestID := ctx.Value(known.XRequestIDKey); requestID != nil {
 		lc.z = lc.z.With(zap.Any(known.XRequestIDKey, requestID))
 	}
 
+	// 将用户名添加到日志的输出字段中
+	if userID := ctx.Value(known.XUsernameKey); userID != nil {
+		lc.z = lc.z.With(zap.Any(known.XUsernameKey, userID))
+	}
 	return lc
 }
 

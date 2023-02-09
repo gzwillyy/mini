@@ -1,17 +1,17 @@
 // Copyright 2022 Innkeeper Belm(孔令飞) <nosbelm@qq.com>. All rights reserved.
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file. The original repo for
-// this file is https://github.com/marmotedu/miniblog.
+// this file is https://github.com/gzwillyy/mini.
 
 package user
 
 import (
 	"github.com/gin-gonic/gin"
 
-	"github.com/marmotedu/miniblog/internal/pkg/core"
-	"github.com/marmotedu/miniblog/internal/pkg/errno"
-	"github.com/marmotedu/miniblog/internal/pkg/log"
-	v1 "github.com/marmotedu/miniblog/pkg/api/miniblog/v1"
+	"github.com/gzwillyy/mini/internal/pkg/core"
+	"github.com/gzwillyy/mini/internal/pkg/errno"
+	"github.com/gzwillyy/mini/internal/pkg/log"
+	v1 "github.com/gzwillyy/mini/pkg/api/mini/v1"
 )
 
 // 登录 miniblog 并返回一个 JWT Token.
