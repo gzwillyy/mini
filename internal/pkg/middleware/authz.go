@@ -12,34 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package user
+package middleware
 
 import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/gzwillyy/mini/internal/pkg/core"
 	"github.com/gzwillyy/mini/internal/pkg/errno"
+	"github.com/gzwillyy/mini/internal/pkg/known"
 	"github.com/gzwillyy/mini/internal/pkg/log"
-	v1 "github.com/gzwillyy/mini/pkg/api/mini/v1"
 )
 
-// Login 登录 miniblog 并返回一个 JWT Token.
-func (ctrl *UserController) Login(c *gin.Context) {
-	log.C(c).Infow("Login function called")
+// Auther 用来定义授权接口实现.
+// sub: 操作主题，obj：操作对象, act：操作
+type Auther interface {
+	Authorize(sub, obj, act string) (bool, error)
+}
 
-	var r v1.LoginRequest
-	if err := c.ShouldBindJSON(&r); err != nil {
-		core.WriteResponse(c, errno.ErrBind, nil)
+// Authz 是 Gin 中间件，用来进行请求授权.
+func Authz(a Auther) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		sub := c.GetString(known.XUsernameKey)
+		obj := c.Request.URL.Path
+		act := c.Request.Method
 
-		return
+		log.Debugw("Build authorize context", "sub", sub, "obj", obj, "act", act)
+		if allowed, _ := a.Authorize(sub, obj, act); !allowed {
+			core.WriteResponse(c, errno.ErrUnauthorized, nil)
+			c.Abort()
+			return
+		}
 	}
-
-	resp, err := ctrl.b.Users().Login(c, &r)
-	if err != nil {
-		core.WriteResponse(c, err, nil)
-
-		return
-	}
-
-	core.WriteResponse(c, nil, resp)
 }

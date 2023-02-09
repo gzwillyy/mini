@@ -15,18 +15,22 @@
 package user
 
 import (
-	"github.com/gzwillyy/mini/internal/mini/biz"
-	"github.com/gzwillyy/mini/internal/mini/store"
-	"github.com/gzwillyy/mini/pkg/auth"
+	"github.com/gin-gonic/gin"
+
+	"github.com/gzwillyy/mini/internal/pkg/core"
+	"github.com/gzwillyy/mini/internal/pkg/log"
 )
 
-// UserController 是 user 模块在 Controller 层的实现，用来处理用户模块的请求.
-type UserController struct {
-	a *auth.Authz
-	b biz.IBiz
-}
+// Get 获取一个用户的详细信息.
+func (ctrl *UserController) Get(c *gin.Context) {
+	log.C(c).Infow("Get user function called")
 
-// New 创建一个 user controller.
-func New(ds store.IStore, a *auth.Authz) *UserController {
-	return &UserController{a: a, b: biz.NewBiz(ds)}
+	user, err := ctrl.b.Users().Get(c, c.Param("name"))
+	if err != nil {
+		core.WriteResponse(c, err, nil)
+
+		return
+	}
+
+	core.WriteResponse(c, nil, user)
 }
