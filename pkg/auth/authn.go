@@ -12,23 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package auth
 
-import (
-	"os"
+import "golang.org/x/crypto/bcrypt"
 
-	// _ "go.uber.org/automaxprocs"
+// Encrypt 使用 bcrypt 加密纯文本.
+func Encrypt(source string) (string, error) {
+	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(source), bcrypt.DefaultCost)
 
-	"github.com/gzwillyy/mini/internal/mini"
-)
+	return string(hashedBytes), err
+}
 
-// Go 程序的默认入口函数(主函数).
-func main() {
-
-	//使用 cobra 框架创建应用的cli交互 aa
-	command := mini.NewMiniCommand()
-	if err := command.Execute(); err != nil {
-		os.Exit(1)
-	}
-
+// Compare 比较密文和明文是否相同.
+func Compare(hashedPassword, password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }

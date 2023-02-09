@@ -1,23 +1,17 @@
-// Copyright (c) 2023 gzwillyy
+// Copyright 2023 The Mini Authors
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy of
-// this software and associated documentation files (the "Software"), to deal in
-// the Software without restriction, including without limitation the rights to
-// use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-// the Software, and to permit persons to whom the Software is furnished to do so,
-// subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-// FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-// COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-// IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-// Package log 日志包定制开发
 package log
 
 import (
@@ -31,7 +25,7 @@ import (
 	"github.com/gzwillyy/mini/internal/pkg/known"
 )
 
-// Logger 定义了 miniblog 项目的日志接口. 该接口只包含了支持的日志记录方法.
+// Logger 定义了 mini 项目的日志接口. 该接口只包含了支持的日志记录方法.
 type Logger interface {
 	Debugw(msg string, keysAndValues ...interface{})
 	Infow(msg string, keysAndValues ...interface{})
@@ -96,7 +90,7 @@ func NewLogger(opts *Options) *zapLogger {
 
 	// 创建构建 zap.Logger 需要的配置
 	cfg := &zap.Config{
-		// 是否在日志中显示调用日志所在的文件和行号，例如：`"caller":"miniblog/miniblog.go:75"`
+		// 是否在日志中显示调用日志所在的文件和行号，例如：`"caller":"mini/mini.go:75"`
 		DisableCaller: opts.DisableCaller,
 		// 是否禁止在 panic 及以上级别打印堆栈信息
 		DisableStacktrace: opts.DisableStacktrace,

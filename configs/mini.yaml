@@ -1,21 +1,18 @@
-# Copyright (c) 2023 gzwillyy
+# Copyright 2023 The Mini Authors
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in
-# the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-# the Software, and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
 
 # 通用配置
 name : web-api                              # 服务名称
@@ -30,6 +27,16 @@ log:
   level: debug                              # 指定日志级别，可选值：debug, info, warn, error, dpanic, panic, fatal
   format: console                           # 指定日志显示格式，可选值：console, json
   output-paths: [/tmp/miniblog.log, stdout] # 指定日志输出位置
+
+db:
+  host: 10.211.55.3                         # MySQL 机器 IP 和端口，默认 127.0.0.1:3306
+  username: root                            # MySQL 用户名(建议授权最小权限集)
+  password: g8azxYLFm2                      # MySQL 用户密码
+  database: mini                            # mini 系统所用的数据库名
+  max-idle-connections: 100                 # MySQL 最大空闲连接数，默认 100
+  max-open-connections: 100                 # MySQL 最大打开的连接数，默认 100
+  max-connection-life-time: 10s             # 空闲连接最大存活时间，默认 10s
+  log-level: 4                              # GORM log level, 1: silent, 2:error, 3:warn, 4:info
 
 # JWT配置
 jwt:

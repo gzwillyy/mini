@@ -12,23 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package store
 
 import (
-	"os"
+	"context"
 
-	// _ "go.uber.org/automaxprocs"
-
-	"github.com/gzwillyy/mini/internal/mini"
+	"github.com/gzwillyy/mini/internal/pkg/model"
+	"gorm.io/gorm"
 )
 
-// Go 程序的默认入口函数(主函数).
-func main() {
+// UserStore 定义了 user 模块在 store 层所实现的方法.
+type UserStore interface {
+	Create(ctx context.Context, user *model.UserM) error
+}
 
-	//使用 cobra 框架创建应用的cli交互 aa
-	command := mini.NewMiniCommand()
-	if err := command.Execute(); err != nil {
-		os.Exit(1)
-	}
+// UserStore 接口的实现.
+type users struct {
+	db *gorm.DB
+}
 
+func newUsers(db *gorm.DB) *users {
+	return &users{db}
+}
+
+// 确保 users 实现了 UserStore 接口.
+var _ UserStore = (*users)(nil)
+
+// Create users具体实现 UserStore 接口的 Create 方法
+func (u users) Create(ctx context.Context, user *model.UserM) error {
+	return u.db.Create(&user).Error
 }

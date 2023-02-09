@@ -12,23 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package v1
 
-import (
-	"os"
-
-	// _ "go.uber.org/automaxprocs"
-
-	"github.com/gzwillyy/mini/internal/mini"
-)
-
-// Go 程序的默认入口函数(主函数).
-func main() {
-
-	//使用 cobra 框架创建应用的cli交互 aa
-	command := mini.NewMiniCommand()
-	if err := command.Execute(); err != nil {
-		os.Exit(1)
-	}
-
+// CreateUserRequest 指定了 `POST /v1/users` 接口的请求参数.  valid tag 用来做参数校验
+type CreateUserRequest struct {
+	Username string `json:"username" valid:"alphanum,required,stringlength(1|255)"`
+	Password string `json:"password" valid:"required,stringlength(6|18)"`
+	Nickname string `json:"nickname" valid:"required,stringlength(1|255)"`
+	Email    string `json:"email" valid:"required,email"`
+	Phone    string `json:"phone" valid:"required,stringlength(11|11)"`
 }
