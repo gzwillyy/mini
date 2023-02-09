@@ -50,7 +50,7 @@ format: # 格式化 Go 源码.
 
 .PHONY: add-copyright
 add-copyright: # 添加版权头信息.
-	@addlicense -c gzwillyy -l mit  .
+	@addlicense -c "The Mini Authors" -l apache  .
 
 .PHONY: tidy
 tidy: # 自动添加/移除依赖包.
