@@ -17,22 +17,21 @@ package user
 import (
 	"context"
 	"errors"
-	"gorm.io/gorm"
 	"regexp"
+	"sync"
 
 	"github.com/jinzhu/copier"
+	"golang.org/x/sync/errgroup"
+	"gorm.io/gorm"
 
 	"github.com/gzwillyy/mini/internal/mini/store"
 	"github.com/gzwillyy/mini/internal/pkg/errno"
+	"github.com/gzwillyy/mini/internal/pkg/log"
 	"github.com/gzwillyy/mini/internal/pkg/model"
-	"github.com/gzwillyy/mini/pkg/api/mini/v1"
+	v1 "github.com/gzwillyy/mini/pkg/api/mini/v1"
 	"github.com/gzwillyy/mini/pkg/auth"
 	"github.com/gzwillyy/mini/pkg/token"
 )
-
-//将 UserBiz 的实现放在了 internal/mini/biz/user 目录中
-//原因是考虑到以后业务逻辑层代码量会比较大
-//按 REST 资源保存在不同的目录中，后期阅读和维护都会比较简单
 
 // UserBiz 定义了 user 模块在 biz 层所实现的方法.
 type UserBiz interface {
@@ -40,20 +39,23 @@ type UserBiz interface {
 	Login(ctx context.Context, r *v1.LoginRequest) (*v1.LoginResponse, error)
 	Create(ctx context.Context, r *v1.CreateUserRequest) error
 	Get(ctx context.Context, username string) (*v1.GetUserResponse, error)
+	List(ctx context.Context, offset, limit int) (*v1.ListUserResponse, error)
+	Update(ctx context.Context, username string, r *v1.UpdateUserRequest) error
+	Delete(ctx context.Context, username string) error
 }
 
-// userBiz UserBiz接口的实现.
+// UserBiz 接口的实现.
 type userBiz struct {
 	ds store.IStore
 }
 
-// NewUserBiz New 创建一个实现了 UserBiz 接口的实例.
-func NewUserBiz(ds store.IStore) *userBiz {
-	return &userBiz{ds: ds}
-}
-
 // 确保 userBiz 实现了 UserBiz 接口.
 var _ UserBiz = (*userBiz)(nil)
+
+// New 创建一个实现了 UserBiz 接口的实例.
+func New(ds store.IStore) *userBiz {
+	return &userBiz{ds: ds}
+}
 
 // ChangePassword 是 UserBiz 接口中 `ChangePassword` 方法的实现.
 func (b *userBiz) ChangePassword(ctx context.Context, username string, r *v1.ChangePasswordRequest) error {
@@ -100,6 +102,7 @@ func (b *userBiz) Login(ctx context.Context, r *v1.LoginRequest) (*v1.LoginRespo
 func (b *userBiz) Create(ctx context.Context, r *v1.CreateUserRequest) error {
 	var userM model.UserM
 	_ = copier.Copy(&userM, r)
+
 	if err := b.ds.Users().Create(ctx, &userM); err != nil {
 		if match, _ := regexp.MatchString("Duplicate entry '.*' for key 'username'", err.Error()); match {
 			return errno.ErrUserAlreadyExist
@@ -131,7 +134,126 @@ func (b *userBiz) Get(ctx context.Context, username string) (*v1.GetUserResponse
 	return &resp, nil
 }
 
-//接受来自 Controller 层的入参：context.Context、*v1.CreateUserRequest；
-//根据 Store 层 Users().Create() 的入参要求，构建 UserM 结构体；
-//调用 Users().Create() 创建用户，并检查返回结果。这里检查了报错是否是用户已存在。如果是，就返回指定的业务错误（ErrUserAlreadyExist 是我们新增的业务错误）。
-//为了提高开发效率，简化代码量，我在从 v1.CreateUserRequest 构造 model.UserM 的时候，使用了 github.com/jinzhu/copier 包的 Copy 函数
+// List 是 UserBiz 接口中 `List` 方法的实现.
+func (b *userBiz) List(ctx context.Context, offset, limit int) (*v1.ListUserResponse, error) {
+	count, list, err := b.ds.Users().List(ctx, offset, limit)
+	if err != nil {
+		log.C(ctx).Errorw("Failed to list users from storage", "err", err)
+		return nil, err
+	}
+
+	var m sync.Map
+	eg, ctx := errgroup.WithContext(ctx)
+	// 使用 goroutine 提高接口性能
+	for _, item := range list {
+		user := item
+		eg.Go(func() error {
+			select {
+			case <-ctx.Done():
+				return nil
+			default:
+				count, _, err := b.ds.Posts().List(ctx, user.Username, 0, 0)
+				if err != nil {
+					log.C(ctx).Errorw("Failed to list posts", "err", err)
+					return err
+				}
+
+				m.Store(user.ID, &v1.UserInfo{
+					Username:  user.Username,
+					Nickname:  user.Nickname,
+					Email:     user.Email,
+					Phone:     user.Email,
+					PostCount: count,
+					CreatedAt: user.CreatedAt.Format("2006-01-02 15:04:05"),
+					UpdatedAt: user.UpdatedAt.Format("2006-01-02 15:04:05"),
+				})
+
+				return nil
+			}
+		})
+	}
+
+	if err := eg.Wait(); err != nil {
+		log.C(ctx).Errorw("Failed to wait all function calls returned", "err", err)
+		return nil, err
+	}
+
+	users := make([]*v1.UserInfo, 0, len(list))
+	for _, item := range list {
+		user, _ := m.Load(item.ID)
+		users = append(users, user.(*v1.UserInfo))
+	}
+
+	log.C(ctx).Debugw("Get users from backend storage", "count", len(users))
+
+	return &v1.ListUserResponse{TotalCount: count, Users: users}, nil
+}
+
+// ListWithBadPerformance 是一个性能较差的实现方式（已废弃）.
+func (b *userBiz) ListWithBadPerformance(ctx context.Context, offset, limit int) (*v1.ListUserResponse, error) {
+	count, list, err := b.ds.Users().List(ctx, offset, limit)
+	if err != nil {
+		log.C(ctx).Errorw("Failed to list users from storage", "err", err)
+		return nil, err
+	}
+
+	users := make([]*v1.UserInfo, 0, len(list))
+	for _, item := range list {
+		user := item
+
+		count, _, err := b.ds.Posts().List(ctx, user.Username, 0, 0)
+		if err != nil {
+			log.C(ctx).Errorw("Failed to list posts", "err", err)
+			return nil, err
+		}
+
+		users = append(users, &v1.UserInfo{
+			Username:  user.Username,
+			Nickname:  user.Nickname,
+			Email:     user.Email,
+			Phone:     user.Email,
+			PostCount: count,
+			CreatedAt: user.CreatedAt.Format("2006-01-02 15:04:05"),
+			UpdatedAt: user.UpdatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+
+	log.C(ctx).Debugw("Get users from backend storage", "count", len(users))
+
+	return &v1.ListUserResponse{TotalCount: count, Users: users}, nil
+}
+
+// Update 是 UserBiz 接口中 `Update` 方法的实现.
+func (b *userBiz) Update(ctx context.Context, username string, user *v1.UpdateUserRequest) error {
+	userM, err := b.ds.Users().Get(ctx, username)
+	if err != nil {
+		return err
+	}
+
+	if user.Email != nil {
+		userM.Email = *user.Email
+	}
+
+	if user.Nickname != nil {
+		userM.Nickname = *user.Nickname
+	}
+
+	if user.Phone != nil {
+		userM.Phone = *user.Phone
+	}
+
+	if err := b.ds.Users().Update(ctx, userM); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Delete 是 UserBiz 接口中 `Delete` 方法的实现.
+func (b *userBiz) Delete(ctx context.Context, username string) error {
+	if err := b.ds.Users().Delete(ctx, username); err != nil {
+		return err
+	}
+
+	return nil
+}

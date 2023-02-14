@@ -14,6 +14,8 @@
 
 package store
 
+//go:generate mockgen -destination mock_store.go -package store github.com/marmotedu/miniblog/internal/miniblog/store IStore,UserStore,PostStore
+
 import (
 	"sync"
 
@@ -22,7 +24,7 @@ import (
 
 var (
 	once sync.Once
-	// S 全局变量，方便其它包直接调用已初始化好的 S 实例.
+	// 全局变量，方便其它包直接调用已初始化好的 S 实例.
 	S *datastore
 )
 
@@ -30,6 +32,7 @@ var (
 type IStore interface {
 	DB() *gorm.DB
 	Users() UserStore
+	Posts() PostStore
 }
 
 // datastore 是 IStore 的一个具体实现.
@@ -58,4 +61,9 @@ func (ds *datastore) DB() *gorm.DB {
 // Users 返回一个实现了 UserStore 接口的实例.
 func (ds *datastore) Users() UserStore {
 	return newUsers(ds.db)
+}
+
+// Posts 返回一个实现了 PostStore 接口的实例.
+func (ds *datastore) Posts() PostStore {
+	return newPosts(ds.db)
 }

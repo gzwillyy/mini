@@ -15,15 +15,16 @@
 package mini
 
 import (
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
-	mw "github.com/gzwillyy/mini/internal/pkg/middleware"
-	"github.com/gzwillyy/mini/pkg/auth"
 
 	"github.com/gzwillyy/mini/internal/mini/controller/v1/user"
 	"github.com/gzwillyy/mini/internal/mini/store"
 	"github.com/gzwillyy/mini/internal/pkg/core"
 	"github.com/gzwillyy/mini/internal/pkg/errno"
 	"github.com/gzwillyy/mini/internal/pkg/log"
+	mw "github.com/gzwillyy/mini/internal/pkg/middleware"
+	"github.com/gzwillyy/mini/pkg/auth"
 )
 
 // installRouters 安装 mini 接口路由.
@@ -39,6 +40,9 @@ func installRouters(g *gin.Engine) error {
 
 		core.WriteResponse(c, nil, map[string]string{"status": "ok"})
 	})
+
+	// 注册 pprof 路由 用于api性能测试
+	pprof.Register(g)
 
 	authz, err := auth.NewAuthz(store.S.DB())
 	if err != nil {

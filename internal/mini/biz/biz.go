@@ -44,5 +44,5 @@ func NewBiz(ds store.IStore) *biz {
 
 // Users 返回一个实现了 UserBiz 接口的实例.
 func (b *biz) Users() user.UserBiz {
-	return user.NewUserBiz(b.ds)
+	return user.New(b.ds)
 }

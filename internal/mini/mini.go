@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -28,10 +29,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"google.golang.org/grpc"
 
+	"github.com/gzwillyy/mini/internal/mini/controller/v1/user"
+	"github.com/gzwillyy/mini/internal/mini/store"
 	"github.com/gzwillyy/mini/internal/pkg/known"
 	"github.com/gzwillyy/mini/internal/pkg/log"
 	mw "github.com/gzwillyy/mini/internal/pkg/middleware"
+	pb "github.com/gzwillyy/mini/pkg/proto/mini/v1"
 	"github.com/gzwillyy/mini/pkg/token"
 	"github.com/gzwillyy/mini/pkg/version/verflag"
 )
@@ -121,17 +126,14 @@ func run() error {
 		return err
 	}
 
-	// 创建 HTTP Server 实例
-	httpSrv := &http.Server{Addr: fmt.Sprintf(":%s", viper.GetString("port")), Handler: g}
+	// 创建并运行 HTTP 服务器
+	httpSrv := startInsecureServer(g)
 
-	// 运行 HTTP 服务器
-	// 打印一条日志，用来提示 HTTP 服务已经起来，方便排障
-	log.Infow("Start to listening the incoming requests on http address", "addr", viper.GetString("port"))
-	go func() {
-		if err := httpSrv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Fatalw(err.Error())
-		}
-	}()
+	// 创建并运行 HTTPS 服务器
+	//httpsSrv := startSecureServer(g)
+
+	// 创建并运行 GRPC 服务器
+	grpcSrv := startGRPCServer()
 
 	// 等待中断信号优雅地关闭服务器（10 秒超时)。
 	quit := make(chan os.Signal, 1)
@@ -152,7 +154,74 @@ func run() error {
 		return err
 	}
 
+	//if err := httpsSrv.Shutdown(ctx); err != nil {
+	//	log.Errorw("Secure Server forced to shutdown", "err", err)
+	//	return err
+	//}
+
+	grpcSrv.GracefulStop()
+
 	log.Infow("Server exiting")
 	return nil
 
+}
+
+// startInsecureServer 创建并运行 HTTP 服务器.
+func startInsecureServer(g *gin.Engine) *http.Server {
+	// 创建 HTTP Server 实例
+	httpSrv := &http.Server{Addr: fmt.Sprintf(":%s", viper.GetString("port")), Handler: g}
+
+	// 运行 HTTP 服务器。在 goroutine 中启动服务器，它不会阻止下面的正常关闭处理流程
+	// 打印一条日志，用来提示 HTTP 服务已经起来，方便排障
+	log.Infow("Start to listening the incoming requests on http address", "addr", viper.GetString("port"))
+	go func() {
+		if err := httpSrv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalw(err.Error())
+		}
+	}()
+
+	return httpSrv
+}
+
+// startSecureServer 创建并运行 HTTPS 服务器.
+func startSecureServer(g *gin.Engine) *http.Server {
+	// 创建 HTTPS Server 实例
+	httpsSrv := &http.Server{Addr: fmt.Sprintf(":%s", viper.GetString("tls.port")), Handler: g}
+
+	// 运行 HTTPS 服务器。在 goroutine 中启动服务器，它不会阻止下面的正常关闭处理流程
+	// 打印一条日志，用来提示 HTTPS 服务已经起来，方便排障
+	log.Infow("Start to listening the incoming requests on https address", "addr", viper.GetString("tls.port"))
+	cert, key := viper.GetString("tls.cert"), viper.GetString("tls.key")
+	if cert != "" && key != "" {
+		go func() {
+			if err := httpsSrv.ListenAndServeTLS(cert, key); err != nil && !errors.Is(err, http.ErrServerClosed) {
+				log.Fatalw(err.Error())
+			}
+		}()
+	}
+
+	return httpsSrv
+}
+
+// startGRPCServer 创建并运行 GRPC 服务器.
+func startGRPCServer() *grpc.Server {
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", viper.GetString("grpc.port")))
+	if err != nil {
+		log.Fatalw("Failed to listen", "err", err)
+	}
+
+	// 创建 GRPC Server 实例
+	grpcSrv := grpc.NewServer()
+	pb.RegisterMiniServer(grpcSrv, user.New(store.S, nil))
+
+	// 运行 GRPC 服务器。在 goroutine 中启动服务器，它不会阻止下面的正常关闭处理流程
+	// 打印一条日志，用来提示 GRPC 服务已经起来，方便排障
+	log.Infow("Start to listening the incoming requests on grpc address", "addr", viper.GetString("grpc.port"))
+	go func() {
+		if err := grpcSrv.Serve(lis); err != nil {
+			log.Fatalw(err.Error())
+		}
+	}()
+
+	return grpcSrv
 }

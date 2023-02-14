@@ -12,23 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package user
+package id
 
 import (
-	"github.com/gzwillyy/mini/internal/mini/biz"
-	"github.com/gzwillyy/mini/internal/mini/store"
-	"github.com/gzwillyy/mini/pkg/auth"
-	pb "github.com/gzwillyy/mini/pkg/proto/mini/v1"
+	shortid "github.com/jasonsoft/go-short-id"
 )
 
-// UserController 是 user 模块在 Controller 层的实现，用来处理用户模块的请求.
-type UserController struct {
-	a *auth.Authz
-	b biz.IBiz
-	pb.UnimplementedMiniServer
+// GenShortID 生成 6 位字符长度的唯一 ID.
+func GenShortID() string {
+	opt := shortid.Options{
+		Number:        4,
+		StartWithYear: true,
+		EndWithHost:   false,
+	}
+
+	return toLower(shortid.Generate(opt))
 }
 
-// New 创建一个 user controller.
-func New(ds store.IStore, a *auth.Authz) *UserController {
-	return &UserController{a: a, b: biz.NewBiz(ds)}
+func toLower(ss string) string {
+	var lower string
+	for _, s := range ss {
+		lower += string(s | ' ')
+	}
+
+	return lower
 }

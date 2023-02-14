@@ -15,9 +15,11 @@
 package model
 
 import (
-	"github.com/gzwillyy/mini/pkg/auth"
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
+
+	"github.com/gzwillyy/mini/pkg/auth"
 )
 
 // UserM 是数据库中 user 记录 struct 格式的映射.
