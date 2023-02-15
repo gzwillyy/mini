@@ -130,7 +130,7 @@ func run() error {
 	httpSrv := startInsecureServer(g)
 
 	// 创建并运行 HTTPS 服务器
-	//httpsSrv := startSecureServer(g)
+	httpsSrv := startSecureServer(g)
 
 	// 创建并运行 GRPC 服务器
 	grpcSrv := startGRPCServer()
@@ -154,10 +154,10 @@ func run() error {
 		return err
 	}
 
-	//if err := httpsSrv.Shutdown(ctx); err != nil {
-	//	log.Errorw("Secure Server forced to shutdown", "err", err)
-	//	return err
-	//}
+	if err := httpsSrv.Shutdown(ctx); err != nil {
+		log.Errorw("Secure Server forced to shutdown", "err", err)
+		return err
+	}
 
 	grpcSrv.GracefulStop()
 
