@@ -15,11 +15,6 @@ make build
 👤 **The Mini Authors**
 
 
-## Show your support
-
-Give a ⭐️ if this project helped you!
-
-
 ## 📝 License
 
 This project is [apache](https://github.com/gzwillyy/mini/blob/main/LICENSE) licensed.
