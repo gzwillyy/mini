@@ -72,10 +72,10 @@ jobs:
             ~/go/pkg/mod
           restore-keys: |
             ${{ runner.os }}-go-
-      - name: Run Tests
-        run: make test
       - name: Mkdir _output
         run: mkdir _output
+      - name: Run Tests
+        run: make test
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
