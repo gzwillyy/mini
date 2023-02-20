@@ -76,12 +76,13 @@ func initConfig() {
 	}
 
 	// 将配置信息放在全局变量中
-	viper.Unmarshal(global.ServerConfig)
-	// 打印 viper 当前使用的配置文件，方便 Debug.
+	err := viper.Unmarshal(global.ServerConfig)
+	if err != nil {
+		log.Infow("global server config ", "file", viper.ConfigFileUsed())
+	}
 	// 打印 viper 当前使用的配置文件，方便 Debug.
 	log.Infow("Using config file", "file", viper.ConfigFileUsed())
-	//log.Infow("global info", "file", global.ServerConfig)
-
+	// log.Infow("global info", "file", global.ServerConfig)
 }
 
 // logOptions 从 viper 中读取日志配置，构建 `*log.Options` 并返回.

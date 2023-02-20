@@ -19,7 +19,7 @@ import (
 	"github.com/gzwillyy/mini/internal/mini/store"
 )
 
-//使用工厂模式开发了用以创建 Biz 层实例的代码
+// 使用工厂模式开发了用以创建 Biz 层实例的代码
 
 // IBiz 定义了 Biz 层需要实现的方法.
 

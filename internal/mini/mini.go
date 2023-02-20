@@ -163,7 +163,6 @@ func run() error {
 
 	log.Infow("Server exiting")
 	return nil
-
 }
 
 // startInsecureServer 创建并运行 HTTP 服务器.
