@@ -36,13 +36,17 @@ jobs:
     name: Go lint
     runs-on: ubuntu-latest
     steps:
+     - name: Setup Go
+            uses: actions/setup-go@v3
+            with:
+              go-version: '1.19'
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
           args: '--verbose'
-          version: v1.48.0
+          version: v1.51.2
   test:
     name: ${{ matrix.os }} @ Go ${{ matrix.go }}
     needs: lint
@@ -99,4 +103,4 @@ name: Go workflow
       - main
   workflow_dispatch: null
 # 从工作流生成的工作流运行的名称，它将显示在存储库的“操作”选项卡上的工作流运行列表中。此示例使用带有上下文的表达式github来显示触发工作流运行的参与者的用户名
-run-name: ${{ github.actor }} go workflow
+run-name: workflows: lint test build
