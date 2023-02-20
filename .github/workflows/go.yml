@@ -92,10 +92,10 @@ name: Go workflow
 'on':
   pull_request:
     branches:
-      - master
+      - main
   push:
     branches:
-      - master
+      - main
   workflow_dispatch: null
 # 从工作流生成的工作流运行的名称，它将显示在存储库的“操作”选项卡上的工作流运行列表中。此示例使用带有上下文的表达式github来显示触发工作流运行的参与者的用户名
 run-name: ${{ github.actor }} go workflow
