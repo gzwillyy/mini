@@ -44,7 +44,7 @@ mb::wrk::setup() {
   cmd="wrk -t${threads} -d${duration} -T30s --latency"
 }
 
-# Print usage infomation
+# Print usage information
 mb::wrk::usage()
 {
   cat << EOF

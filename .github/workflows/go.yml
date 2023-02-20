@@ -44,9 +44,13 @@ jobs:
           args: '--verbose'
           version: v1.48.0
   test:
-    name: Go test
+    name: ${{ matrix.os }} @ Go ${{ matrix.go }}
     needs: lint
     runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        go: ['1.17','1.18','1.19','1.20']
+        os: [ubuntu-latest , macos-latest]
     steps:
       - name: Setup Go ${{ matrix.go }}
         uses: actions/setup-go@v3
@@ -66,15 +70,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Run Tests
-        run: go test
+        run: make test
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
           flags: ${{ matrix.os }},go-${{ matrix.go }}
-    strategy:
-      matrix:
-        go: ['1.17']
-        os: [ubuntu-latest , macos-latest]
+          files: ./_output/coverage.out
   # call-workflow-reusable-in-local-repo:
   #   needs: build
   #   secrets:

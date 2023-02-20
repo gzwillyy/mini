@@ -10,6 +10,8 @@ OUTPUT_DIR := $(ROOT_DIR)/_output
 # Protobuf 文件存放路径
 APIROOT=$(ROOT_DIR)/pkg/proto
 
+GOFILES := $(shell find . -name "*.go")
+
 # ==============================================================================
 # 定义版本相关变量
 
@@ -94,13 +96,12 @@ protoc: ## 编译 protobuf 文件.
 .PHONY: test
 test: # 执行单元测试.
 	@echo "===========> Run unit test"
-	@go test -v -cover -coverprofile=_output/coverage.out `go list ./...`
-	@sed -i '/mock_.*.go/d' _output/coverage.out # 从 coverage 中删除mock_.*.go 文件
+	@go test -v -covermode=count -coverprofile=_output/coverage.out `go list ./...`
 
-.PHONY: cover
-cover: test # 执行单元测试，并校验覆盖率阈值.
-	@go tool cover -func=_output/coverage.out | awk -v target=30 -f ./scripts/coverage.awk
+.PHONY: misspell
+misspell: # 拼写错误检查
+	@misspell -w $(GOFILES)
 
-.PHONY: deps
-deps: ## 安装依赖，例如：生成需要的代码等.
-	@go generate $(ROOT_DIR)/...
+.PHONY: tools
+tools: # misspell 安装拼写错误检查工具
+	@go install github.com/client9/misspell/cmd/misspell@latest;
