@@ -1,0 +1,101 @@
+---
+# 将工作流中运行的所有作业组合在一起
+jobs:
+  # build
+  build:
+    name: Go build
+    needs: test
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Go ${{ matrix.go }}
+        uses: actions/setup-go@v3.5.0
+        with:
+          go-version: ${{ matrix.go }}
+      - name: Build
+        run: go build  -o ./hello-${{ matrix.os }}-${{ matrix.go }} -v hello.go
+      - name: Run build file
+        run: ./hello-${{ matrix.os }}-${{ matrix.go }}
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-file
+          path: |
+            hello-${{ matrix.os }}-${{ matrix.go }} 
+    strategy:
+      matrix:
+        go: ['1.18' , '1.19' , '1.20']
+        include:
+          - go-build: ~/.cache/go-build
+            os: ubuntu-latest
+          - go-build: ~/Library/Caches/go-build
+            os: macos-latest
+        os: [ubuntu-latest , macos-latest]
+  lint:
+    name: Go lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          args: '--verbose'
+          version: v1.48.0
+  test:
+    name: Go test
+    needs: lint
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Setup Go ${{ matrix.go }}
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go }}
+      - name: Checkout Go ${{ github.ref }}
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          path: |
+            ${{ matrix.go-build }}
+            ~/go/pkg/mod
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Run Tests
+        run: go test
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          flags: ${{ matrix.os }},go-${{ matrix.go }}
+    strategy:
+      matrix:
+        go: ['1.17']
+        os: [ubuntu-latest , macos-latest]
+  # call-workflow-reusable-in-local-repo:
+  #   needs: build
+  #   secrets:
+  #     registry_password: ${{github.repository}}
+  #     registry_username: ${{github.repository}}
+  #   # secrets:
+  #   #   envPAT: ${{ secrets.envPAT }}
+  #   # 重用工作流
+  #   uses: ./.github/workflows/workflows-reusable.yml
+  #   with:
+  #     config-path: .github/labeler.yml
+# 工作流的名称
+name: Go workflow
+# 工作流触发条件
+'on':
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+  workflow_dispatch: null
+# 从工作流生成的工作流运行的名称，它将显示在存储库的“操作”选项卡上的工作流运行列表中。此示例使用带有上下文的表达式github来显示触发工作流运行的参与者的用户名
+run-name: ${{ github.actor }} go workflow
