@@ -14,15 +14,15 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
       - name: Build
-        run: go build  -o ./hello-${{ matrix.os }}-${{ matrix.go }} -v hello.go
-      - name: Run build file
-        run: ./hello-${{ matrix.os }}-${{ matrix.go }}
+        run: make build
+      - name: Rename
+        run: mv _output/mini  _output/mini-${{ matrix.os }}-${{ matrix.go }}
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build-file
           path: |
-            hello-${{ matrix.os }}-${{ matrix.go }} 
+            _output/mini-${{ matrix.os }}-${{ matrix.go }}
     strategy:
       matrix:
         go: ['1.18' , '1.19' , '1.20']
