@@ -17,6 +17,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v4
         with:
           args: release --rm-dist --clean
+          workdir: ./cmd/mini/
           # either 'goreleaser' (default) or 'goreleaser-pro'
           distribution: goreleaser
           version: latest
