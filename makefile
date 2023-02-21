@@ -36,7 +36,6 @@ GO_LDFLAGS += \
 	-X $(VERSION_PACKAGE).GitTreeState=$(GIT_TREE_STATE) \
 	-X $(VERSION_PACKAGE).BuildDate=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
 
-
 # ==============================================================================
 # 定义 Makefile all 伪目标，执行 `make` 时，会默认会执行 all 伪目标
 .PHONY: all
@@ -96,6 +95,7 @@ protoc: ## 编译 protobuf 文件.
 .PHONY: test
 test: # 执行单元测试.
 	@echo "===========> Run unit test"
+	@mkdir -p _output
 	@go test -v -covermode=count -coverprofile=_output/coverage.out `go list ./...`
 
 .PHONY: misspell
@@ -103,5 +103,6 @@ misspell: # 拼写错误检查
 	@misspell -w $(GOFILES)
 
 .PHONY: tools
-tools: # misspell 安装拼写错误检查工具
+tools: # misspell goreleaser
 	@go install github.com/client9/misspell/cmd/misspell@latest;
+	@go install github.com/goreleaser/goreleaser@latest

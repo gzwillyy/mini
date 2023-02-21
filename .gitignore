@@ -199,3 +199,5 @@ tags
 .vscode
 # Custom
 /_output
+
+dist/

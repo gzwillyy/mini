@@ -14,8 +14,6 @@
 
 package store
 
-//go:generate mockgen -destination mock_store.go -package store github.com/marmotedu/miniblog/internal/miniblog/store IStore,UserStore,PostStore
-
 import (
 	"sync"
 
