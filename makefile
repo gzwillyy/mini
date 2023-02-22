@@ -105,3 +105,4 @@ misspell: # 拼写错误检查
 .PHONY: tools
 tools: # misspell goreleaser
 	@go install github.com/client9/misspell/cmd/misspell@latest;
+	@go install github.com/goreleaser/goreleaser@latest
