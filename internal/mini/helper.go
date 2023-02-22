@@ -81,7 +81,7 @@ func initConfig() {
 		log.Infow("global server config ", "file", viper.ConfigFileUsed())
 	}
 	// 打印 viper 当前使用的配置文件，方便 Debug.
-	log.Infow("Using config file", "file", viper.ConfigFileUsed())
+	//log.Infow("Using config file", "file", viper.ConfigFileUsed())
 	// log.Infow("global info", "file", global.ServerConfig)
 }
 
