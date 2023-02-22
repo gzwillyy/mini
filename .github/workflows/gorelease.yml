@@ -12,16 +12,16 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: 1.20
-      - env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        name: Run GoReleaser
+      - name: Install GoReleaser
         uses: goreleaser/goreleaser-action@v4
         with:
-          args: release --rm-dist --clean --config "../../.goreleaser.yaml"
-          workdir: ./cmd/mini/
-          # either 'goreleaser' (default) or 'goreleaser-pro'
-          distribution: goreleaser
-          version: latest
+            install-only: true
+      - name: Show GoReleaser version
+        run: goreleaser -v
+      - name: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: goreleaser release --rm-dist --clean
 name: Go releaser
 'on':
   push:
