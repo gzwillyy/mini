@@ -1,6 +1,7 @@
 ---
 jobs:
   goreleaser:
+    name: workflows at release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -16,12 +17,12 @@ jobs:
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v4
         with:
-          args: release --rm-dist --clean
+          args: release --rm-dist --clean --config "../../.goreleaser.yaml"
           workdir: ./cmd/mini/
           # either 'goreleaser' (default) or 'goreleaser-pro'
           distribution: goreleaser
           version: latest
-name: Goreleaser
+name: Go releaser
 'on':
   push:
     tags:
