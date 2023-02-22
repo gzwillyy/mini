@@ -33,8 +33,6 @@ builds:
     goos:
       - linux
       - darwin
-      - windows
-
 
 archives:
   - format: tar.gz
