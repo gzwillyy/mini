@@ -15,10 +15,10 @@
 builds:
   - main: ./cmd/mini/
     ldflags:
-    - -X "github.com/gzwillyy/mini/pkg/version.GitVersion={{.Version}}"
-    - -X "github.com/gzwillyy/mini/pkg/version.GitCommit={{.ShortCommit}}"
-    - -X "github.com/gzwillyy/mini/pkg/version.GitTreeState={{.Summary}}"
-    - -X "github.com/gzwillyy/mini/pkg/version.BuildDate={{.CommitDate}}"
+    - "-X github.com/gzwillyy/mini/pkg/version.GitVersion={{.Version}}"
+    - "-X github.com/gzwillyy/mini/pkg/version.GitCommit={{.ShortCommit}}"
+    - "-X github.com/gzwillyy/mini/pkg/version.GitTreeState={{.Summary}}"
+    - "-X github.com/gzwillyy/mini/pkg/version.BuildDate={{.CommitDate}}"
     env:
       - CGO_ENABLED=0
     goos:
