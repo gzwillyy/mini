@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+---
 # This is an example .goreleaser.yml file with some sensible defaults.
 # Make sure to check the documentation at https://goreleaser.com
 before:
@@ -27,12 +28,13 @@ builds:
       - -X github.com/gzwillyy/mini/pkg/version.GitCommit={{.ShortCommit}}
       - -X github.com/gzwillyy/mini/pkg/version.GitTreeState={{.Summary}}
       - -X github.com/gzwillyy/mini/pkg/version.BuildDate={{.CommitDate}}
-  - env:
+    env:
       - CGO_ENABLED=0
     goos:
       - linux
-      - windows
       - darwin
+      - windows
+
 
 archives:
   - format: tar.gz
@@ -46,14 +48,14 @@ archives:
       {{- if .Arm }}v{{ .Arm }}{{ end }}
     # use zip for windows archives
     format_overrides:
-    - goos: windows
-      format: zip
+      - goos: windows
+        format: zip
 checksum:
   name_template: 'checksums.txt'
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
-  sort: asc
+  sort: desc
   filters:
     exclude:
       - '^docs:'
