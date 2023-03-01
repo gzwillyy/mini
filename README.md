@@ -1,5 +1,4 @@
 # Welcome to mini 👋
-[![Version](https://img.shields.io/npm/v/mini.svg)](https://www.npmjs.com/package/mini)
 [![License: apache](https://img.shields.io/badge/License-apache-yellow.svg)](https://github.com/gzwillyy/mini/blob/main/LICENSE)
 
 > mini
