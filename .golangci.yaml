@@ -333,7 +333,7 @@ linters-settings:
   goimports:
     # put imports beginning with prefix after 3rd-party packages;
     # it's a comma-separated list of prefixes
-    local-prefixes: github.com/marmotedu/iam
+    local-prefixes: github.com/gzwillyy/mini
   golint:
     # minimal confidence for issues, default is 0.8
     min-confidence: 0.9
