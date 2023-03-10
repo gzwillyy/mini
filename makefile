@@ -106,3 +106,6 @@ misspell: # 拼写错误检查
 tools: # misspell goreleaser
 	@go install github.com/client9/misspell/cmd/misspell@latest;
 	@go install github.com/goreleaser/goreleaser@latest
+
+.PHONY: help
+help: Makefile ## 打印 Makefile help 信息.
